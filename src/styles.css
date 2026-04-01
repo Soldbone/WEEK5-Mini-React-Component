@@ -148,6 +148,14 @@ input {
   line-height: 1.04;
 }
 
+.panel__summary {
+  position: relative;
+  z-index: 1;
+  margin: -8px 0 18px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
 .counter-card,
 .metric-card,
 .todo-form,
@@ -279,10 +287,17 @@ input {
   border-radius: var(--radius-md);
 }
 
-.todo-item__check {
+.todo-item__toggle {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
 }
 
 .todo-item__indicator {

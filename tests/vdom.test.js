@@ -99,7 +99,9 @@ test("render mounts the static todo/counter board from virtual DOM", () => {
     assert.match(root.textContent, /Learning React Core Clone/);
     assert.match(root.textContent, /Pomodoro count/);
     assert.match(root.textContent, /발표 준비 체크리스트/);
-    assert.equal(root.querySelectorAll("button").length, 4);
+    assert.equal(root.querySelectorAll(".panel--counter button").length, 3);
+    assert.equal(root.querySelectorAll(".todo-form button").length, 1);
+    assert.equal(root.querySelectorAll(".todo-item__toggle").length, 3);
     assert.equal(root.querySelectorAll(".todo-item").length, 3);
   } finally {
     cleanup();
