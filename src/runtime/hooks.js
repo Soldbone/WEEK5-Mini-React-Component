@@ -82,11 +82,12 @@ export function useEffect(effect, deps) {
       slot.value.cleanup();
     }
 
+    slot.value.deps = cloneDeps(deps);
+    slot.value.initialized = true;
+
     const cleanup = effect();
 
     slot.value.cleanup = typeof cleanup === "function" ? cleanup : undefined;
-    slot.value.deps = cloneDeps(deps);
-    slot.value.initialized = true;
   });
 }
 

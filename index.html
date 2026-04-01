@@ -7,6 +7,17 @@
     <link rel="stylesheet" href="./src/styles.css" />
   </head>
   <body>
+    <section class="app-demo-toolbar">
+      <div class="app-demo-toolbar__copy">
+        <p class="app-demo-toolbar__eyebrow">Root lifecycle demo</p>
+        <strong class="app-demo-toolbar__title">Mount App 버튼으로 루트 렌더를 시작하세요</strong>
+        <p id="app-status" class="app-demo-toolbar__status"></p>
+      </div>
+      <div class="app-demo-toolbar__actions">
+        <button id="mount-app" class="solid-button" type="button">Mount App</button>
+        <button id="unmount-app" class="ghost-button" type="button">Unmount App</button>
+      </div>
+    </section>
     <div id="app"></div>
     <script type="module" src="./src/main.js"></script>
   </body>
