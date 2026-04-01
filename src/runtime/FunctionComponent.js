@@ -1,5 +1,6 @@
 import { createRoot } from "../core/root.js";
 import { beginRootRender, finishRootRender, flushPostCommitEffects } from "./hookRuntime.js";
+import { cleanupEffectHooks } from "./hooks.js";
 import { resolveComponentTree } from "./resolveComponentTree.js";
 
 function createInitialState(component, props) {
@@ -22,14 +23,19 @@ export class FunctionComponent {
 
     this.component = component;
     this.props = props;
+    this.resetRuntimeState();
+    this.wasUnmounted = false;
+    this.setState = this.setState.bind(this);
+  }
+
+  resetRuntimeState() {
     this.hooks = [];
-    this.state = createInitialState(component, props);
+    this.state = createInitialState(this.component, this.props);
     this.prevTree = null;
     this.domRoot = null;
     this.root = null;
     this.container = null;
     this.pendingPostCommitEffects = [];
-    this.setState = this.setState.bind(this);
   }
 
   renderTree() {
@@ -48,6 +54,10 @@ export class FunctionComponent {
   }
 
   setState(updater) {
+    if (this.wasUnmounted) {
+      return this.state;
+    }
+
     const partialState = typeof updater === "function" ? updater(this.state) : updater;
 
     if (partialState === null || partialState === undefined) {
@@ -75,6 +85,7 @@ export class FunctionComponent {
       throw new Error("mount(container) requires a valid DOM container.");
     }
 
+    this.wasUnmounted = false;
     this.container = container;
     this.root = createRoot(container);
 
@@ -96,5 +107,18 @@ export class FunctionComponent {
     this.prevTree = nextTree;
     flushPostCommitEffects(this);
     return this.domRoot;
+  }
+
+  unmount() {
+    if (!this.container || !this.root) {
+      return null;
+    }
+
+    cleanupEffectHooks(this);
+    this.pendingPostCommitEffects = [];
+    this.container.replaceChildren();
+    this.wasUnmounted = true;
+    this.resetRuntimeState();
+    return null;
   }
 }

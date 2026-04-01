@@ -121,3 +121,44 @@ test("FunctionComponent update re-renders through diff and preserves unchanged D
     cleanup();
   }
 });
+
+test("FunctionComponent unmount clears the DOM and prevents further updates until remounted", () => {
+  const cleanup = installDom();
+
+  try {
+    function App({ title }) {
+      return h("h1", { className: "title" }, title);
+    }
+
+    const root = document.querySelector("#root");
+    const instance = new FunctionComponent(App, {
+      title: "Mounted title",
+    });
+
+    instance.mount(root);
+
+    assert.equal(root.querySelector(".title").textContent, "Mounted title");
+
+    instance.unmount();
+
+    assert.equal(root.childNodes.length, 0);
+    assert.equal(instance.root, null);
+    assert.equal(instance.domRoot, null);
+    assert.equal(instance.prevTree, null);
+    assert.equal(instance.hooks.length, 0);
+    assert.throws(
+      () => {
+        instance.update({
+          title: "Should fail",
+        });
+      },
+      /Component must be mounted before update\(\)\./,
+    );
+
+    instance.mount(root);
+
+    assert.equal(root.querySelector(".title").textContent, "Mounted title");
+  } finally {
+    cleanup();
+  }
+});

@@ -35,6 +35,10 @@ export function useState(initialValue) {
     };
 
     stateSlot.setValue = (nextValue) => {
+      if (instance.wasUnmounted) {
+        return stateSlot.current;
+      }
+
       const resolvedValue =
         typeof nextValue === "function"
           ? nextValue(stateSlot.current)
@@ -107,4 +111,34 @@ export function useMemo(factory, deps) {
   }
 
   return slot.value.value;
+}
+
+export function cleanupEffectHooks(instance) {
+  let firstError = null;
+
+  instance.hooks.forEach((slot) => {
+    if (slot?.kind !== "useEffect") {
+      return;
+    }
+
+    if (typeof slot.value.cleanup !== "function") {
+      return;
+    }
+
+    try {
+      slot.value.cleanup();
+    } catch (error) {
+      if (!firstError) {
+        firstError = error;
+      }
+    }
+
+    slot.value.cleanup = undefined;
+    slot.value.deps = undefined;
+    slot.value.initialized = false;
+  });
+
+  if (firstError) {
+    throw firstError;
+  }
 }

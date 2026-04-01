@@ -152,3 +152,44 @@ test("useMemo reuses cached values until dependencies change", () => {
     cleanup();
   }
 });
+
+test("unmount runs the latest useEffect cleanup and removes mounted DOM", () => {
+  const cleanup = installDom();
+
+  try {
+    const calls = [];
+
+    function Root(props) {
+      useEffect(() => {
+        calls.push(`effect:${props.label}`);
+
+        return () => {
+          calls.push(`cleanup:${props.label}`);
+        };
+      }, [props.label]);
+
+      return h("p", { className: "value" }, props.label);
+    }
+
+    const root = document.querySelector("#root");
+    const instance = new FunctionComponent(Root, {
+      label: "first",
+    });
+
+    instance.mount(root);
+    instance.update({
+      label: "second",
+    });
+    instance.unmount();
+
+    assert.deepEqual(calls, [
+      "effect:first",
+      "cleanup:first",
+      "effect:second",
+      "cleanup:second",
+    ]);
+    assert.equal(root.childNodes.length, 0);
+  } finally {
+    cleanup();
+  }
+});
