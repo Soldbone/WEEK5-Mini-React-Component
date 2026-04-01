@@ -1,4 +1,5 @@
 import { createRoot } from "../core/root.js";
+import { beginRootRender, finishRootRender, flushPostCommitEffects } from "./hookRuntime.js";
 import { resolveComponentTree } from "./resolveComponentTree.js";
 
 function createInitialState(component, props) {
@@ -27,16 +28,23 @@ export class FunctionComponent {
     this.domRoot = null;
     this.root = null;
     this.container = null;
+    this.pendingPostCommitEffects = [];
     this.setState = this.setState.bind(this);
   }
 
   renderTree() {
-    return resolveComponentTree(
-      this.component(this.props, {
-        state: this.state,
-        setState: this.setState,
-      }),
-    );
+    beginRootRender(this);
+
+    try {
+      return resolveComponentTree(
+        this.component(this.props, {
+          state: this.state,
+          setState: this.setState,
+        }),
+      );
+    } finally {
+      finishRootRender();
+    }
   }
 
   setState(updater) {
@@ -86,6 +94,7 @@ export class FunctionComponent {
     const nextTree = this.renderTree();
     this.domRoot = this.root.render(nextTree);
     this.prevTree = nextTree;
+    flushPostCommitEffects(this);
     return this.domRoot;
   }
 }

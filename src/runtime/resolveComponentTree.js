@@ -1,4 +1,5 @@
 import { createTextElement } from "../core/vdom.js";
+import { withChildComponentScope } from "./hookRuntime.js";
 
 function isRenderablePrimitive(node) {
   return typeof node === "string" || typeof node === "number";
@@ -24,7 +25,7 @@ export function resolveComponentTree(node) {
   }
 
   if (typeof node.type === "function") {
-    return resolveComponentTree(node.type(node.props ?? {}));
+    return withChildComponentScope(() => resolveComponentTree(node.type(node.props ?? {})));
   }
 
   const resolvedChildren = (node.props?.children ?? []).map((child) => resolveComponentTree(child));

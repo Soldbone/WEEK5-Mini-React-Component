@@ -90,28 +90,28 @@ test("demo app updates counter and todo state from input and click events", () =
     incrementButton.dispatchEvent(new Event("click", { bubbles: true }));
 
     assert.equal(counterValue.textContent, "04");
-    assert.equal(instance.state.count, 4);
+    assert.equal(document.title, "Mini React · 04 cycles · 1/3 todos");
 
     todoInputBefore.value = "State bag practice";
     todoInputBefore.dispatchEvent(new Event("input", { bubbles: true }));
 
-    assert.equal(instance.state.todoDraft, "State bag practice");
     assert.equal(root.querySelector(".todo-form__input"), todoInputBefore);
+    assert.equal(root.querySelector(".todo-form__input").value, "State bag practice");
 
     todoForm.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
 
-    assert.equal(instance.state.todoDraft, "");
     assert.equal(root.querySelectorAll(".todo-item").length, 4);
     assert.equal(root.querySelector(".todo-form__input"), todoInputBefore);
     assert.equal(root.querySelector(".todo-form__input").value, "");
     assert.match(root.lastChild.textContent, /State bag practice/);
+    assert.equal(document.title, "Mini React · 04 cycles · 1/4 todos");
 
     const newTodoToggle = root.querySelectorAll(".todo-item__toggle")[3];
 
     newTodoToggle.dispatchEvent(new Event("click", { bubbles: true }));
 
-    assert.equal(instance.state.todos[3].done, true);
     assert.equal(root.querySelectorAll(".todo-item__badge")[3].textContent, "Done");
+    assert.equal(document.title, "Mini React · 04 cycles · 2/4 todos");
   } finally {
     cleanup();
   }
