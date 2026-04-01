@@ -1,4 +1,4 @@
-<img src="./docs/QR-for-repo-link.png" width="55%" height="auto">
+<img src="./docs/QR-for-repo-link.png" width="75%" height="auto">
 
 <br/>
 <br/>
