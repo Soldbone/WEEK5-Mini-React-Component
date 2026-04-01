@@ -1,8 +1,53 @@
+<img src="./docs/QR-for-repo-link.png" width="55%" height="auto">
+
+<br/>
+<br/>
+
 # Mini React Clone for Jungle Demo
 Virtual DOM, `diff/patch`, function component, state, hooks(`useState`, `useEffect`, `useMemo`)를 바이브 코딩으로 구현한 Mini React 프로젝트입니다.
 
 ## 핵심 구조
-전체 흐름은 아래 한 줄로 요약할 수 있습니다.
+이 Mini React는 컴포넌트 실행, VDOM 생성, `diff/patch`, effect 실행을 아래 순서로 처리합니다.
+
+```mermaid
+flowchart TD
+  A["mount() / update()"] --> B["FunctionComponent.renderTree()"]
+  B --> C["beginRootRender()"]
+  C --> D["Root Component 실행"]
+  D --> E["resolveComponentTree()"]
+  E --> F["createRoot.render(nextTree)"]
+  F --> G["diff(prevTree, nextTree)"]
+  G --> H["patch(container, patches)"]
+  H --> I["DOM commit"]
+  I --> J["flushPostCommitEffects()"]
+```
+
+### 한 줄 요약
+- 렌더 단계에서 root component를 실행하고 plain VDOM tree를 만듭니다.
+- 커밋 단계에서 이전 tree와 비교한 결과만 실제 DOM에 반영합니다.
+- DOM 반영이 끝난 뒤 post-commit effect를 실행합니다.
+
+### 구조별 역할
+- `FunctionComponent`
+  - `mount()`, `update()`, `unmount()`의 시작점이며 `renderTree()`와 `commitRender()`로 전체 렌더 사이클을 관리합니다.
+- `resolveComponentTree()`
+  - function component를 재귀적으로 호출해 최종 plain VDOM tree로 해석합니다.
+- `createRoot()`
+  - 이전 tree를 기억하고, 새 tree가 들어오면 `diff()`와 `patch()`를 연결해 DOM 갱신을 수행합니다.
+- `diff() / patch()`
+  - 이전 tree와 다음 tree를 비교해 변경된 부분만 실제 DOM에 반영합니다.
+- `hookRuntime / hooks`
+  - hook slot을 관리하고, `useEffect` 계열 작업을 DOM commit 이후 `flushPostCommitEffects()`에서 실행합니다.
+
+## 회고
+### 협업
+- 분업이 아닌 동료 학습으로서의 협업으로 접근
+- AI가 생성한 코드에 대해 페어 프로그래밍을 하듯이 다같이 이해함
+- 결과물을 한번에 만드는 것이 아니라 단계별로 나누어 이해하고 다음 단계의 기능을 구현함
+- 이전 수요 코딩회에 비해서 매우 많은 보람과 성취감을 느낌
+
+<br/><br/><br/><br/><br/><br/><br/><br/><br/>
+
 
 
 ## 핵심 구현
@@ -24,10 +69,6 @@ Virtual DOM, `diff/patch`, function component, state, hooks(`useState`, `useEffe
   - deps가 바뀌면 이전 cleanup을 먼저 호출
 - `useMemo`
   - dependency array가 같으면 캐시값 재사용
-
-## 회고
-
-
 
 ## React와의 차이
 - `key` 기반 reconciliation 없음
